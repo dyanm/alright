@@ -537,7 +537,7 @@ class WhatsApp(object):
                 EC.presence_of_element_located(
                     (
                         By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-testid="mi-attach-media"]/*/input',
+                        '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
                     )
                 )
             )
@@ -596,8 +596,7 @@ class WhatsApp(object):
                     EC.presence_of_element_located(
                         (
                             By.XPATH,
-                            #'//*[@id="main"]/footer//*[@data-icon="attach-image"]/../input',
-                            '//*[@id="main"]/footer//*[@data-testid="mi-attach-media"]/*/input',
+                            '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[2]/li/div/input',
                         )
                     )
                 )
@@ -628,7 +627,7 @@ class WhatsApp(object):
                 EC.presence_of_element_located(
                     (
                         By.XPATH,
-                        '//*[@id="main"]/footer//*[@data-icon="attach-document"]/../input',
+                        '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[1]/div[2]/div/span/div/ul/div/div[1]/li/div/input',
                     )
                 )
             )

@@ -35,7 +35,7 @@ class WhatsApp(object):
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-        self.headless= headless
+        self.headless = headless
         
         if not browser:
             service = Service(ChromeDriverManager().install())
@@ -64,6 +64,8 @@ class WhatsApp(object):
         else:
             chrome_options.add_argument("start-maximized")
             chrome_options.add_argument("--user-data-dir=./User_Data")
+        # to suppress the error messages/logs
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         return chrome_options
 
     def cli(self):

@@ -29,7 +29,7 @@ LOGGER = logging.getLogger()
 
 
 class WhatsApp(object):
-    def __init__(self, browser=None, time_out=600):
+    def __init__(self, headless=False, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 

@@ -8,13 +8,13 @@ import os
 import sys
 import time
 import logging
-import platformdirs
+from typing import Optional
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -28,17 +28,19 @@ LOGGER = logging.getLogger()
 
 
 class WhatsApp(object):
-    def __init__(self, headless=False, browser=None, time_out=600):
+    def __init__(self, browser=None, time_out=600):
         # CJM - 20220419: Added time_out=600 to allow the call with less than 600 sec timeout
         # web.open(f"https://web.whatsapp.com/send?phone={phone_no}&text={quote(message)}")
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-        self.headless= headless
+
         if not browser:
-            service = Service(ChromeDriverManager().install())
-            browser = webdriver.Chrome(service=service, options=self.chrome_options)
-            
+            browser = webdriver.Chrome(
+                ChromeDriverManager().install(),
+                options=self.chrome_options,
+            )
+
             handles = browser.window_handles
             for _, handle in enumerate(handles):
                 if handle != browser.current_window_handle:
@@ -55,14 +57,12 @@ class WhatsApp(object):
     @property
     def chrome_options(self):
         chrome_options = Options()
-        chrome_options.headless = self.headless
-        chrome_options.add_argument(
-            "--user-data-dir=" + platformdirs.user_data_dir("alright")
-        )
         if sys.platform == "win32":
             chrome_options.add_argument("--profile-directory=Default")
+            chrome_options.add_argument("--user-data-dir=C:/Temp/ChromeProfile")
         else:
             chrome_options.add_argument("start-maximized")
+            chrome_options.add_argument("--user-data-dir=./User_Data")
         return chrome_options
 
     def cli(self):
@@ -157,7 +157,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]',
+                    "/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]",
                 )
             )
         )
@@ -264,7 +264,7 @@ class WhatsApp(object):
             search_box.send_keys(Keys.ARROW_DOWN)
             chat = self.browser.switch_to.active_element
 
-            # acceptable here as an exception!
+            # excepcitonally acceptable here!
             time.sleep(1)
             flag = False
             prev_name = ""
@@ -422,10 +422,9 @@ class WhatsApp(object):
                 lambda ctrl_self: ctrl_self.find_elements(By.XPATH, nr_not_found_xpath)
                 or ctrl_self.find_elements(By.XPATH, inp_xpath)
             )
-            msg = "0"  # Not yet sent
             # Iterate through the list of elements to test each if they are a textBox or a Button
             for i in ctrl_element:
-                if i.get_attribute("role") == "textbox":
+                if i.aria_role == "textbox":
                     # This is a WhatsApp Number -> Send Message
 
                     for line in message.split("\n"):
@@ -439,7 +438,7 @@ class WhatsApp(object):
                     # Found alert issues when we send messages too fast, so I called the below line to catch any alerts
                     self.catch_alert()
 
-                elif i.get_attribute("role") == "button":
+                elif i.aria_role == "button":
                     # Did not find the Message Text box
                     # BUT we possibly found the XPath of the error "Phone number shared via url is invalid."
                     if i.text == "OK":
@@ -455,7 +454,7 @@ class WhatsApp(object):
             LOGGER.info(f"{msg}")
             return msg
 
-    def send_message(self, message):
+    def send_message(self, message, timeout=0.0):
         """send_message ()
         Sends a message to a target user
 
@@ -463,9 +462,7 @@ class WhatsApp(object):
             message ([type]): [description]
         """
         try:
-            inp_xpath = (
-                '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[1]/div/div[1]'
-            )
+            inp_xpath = '//*[@id="main"]/footer/div/div/span[2]/div/div[2]/div/div/div'
             input_box = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, inp_xpath))
             )
@@ -474,6 +471,8 @@ class WhatsApp(object):
                 ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
                     Keys.ENTER
                 ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            if timeout:
+                time.sleep(timeout)
             input_box.send_keys(Keys.ENTER)
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
@@ -490,10 +489,29 @@ class WhatsApp(object):
     def find_attachment(self):
         clipButton = self.wait.until(
             EC.presence_of_element_located(
-                (By.XPATH, '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..')
+                (
+                    By.XPATH,
+                    '//*[@id="main"]/footer//*[@data-icon="attach-menu-plus"]/..',
+                )
             )
         )
         clipButton.click()
+
+    def add_caption(self, message: str, media_type: str = "image"):
+        xpath_map = {
+            "image": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div[1]",
+            "video": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
+            "file": "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[1]/div[1]",
+        }
+        inp_xpath = xpath_map[media_type]
+        input_box = self.wait.until(
+            EC.presence_of_element_located((By.XPATH, inp_xpath))
+        )
+        for line in message.split("\n"):
+            input_box.send_keys(line)
+            ActionChains(self.browser).key_down(Keys.SHIFT).key_down(Keys.ENTER).key_up(
+                Keys.ENTER
+            ).key_up(Keys.SHIFT).perform()
 
     def send_attachment(self):
         # Waiting for the pending clock icon to disappear
@@ -507,7 +525,7 @@ class WhatsApp(object):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span",
+                    '//*[@id="app"]/div[1]/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[2]/div[2]/div/div/span',
                 )
             )
         )
@@ -521,7 +539,7 @@ class WhatsApp(object):
             )
         )
 
-    def send_picture(self, picture, message):
+    def send_picture(self, picture: Path, message: Optional[str] = None):
         """send_picture ()
 
         Sends a picture to a target user
@@ -542,15 +560,8 @@ class WhatsApp(object):
                 )
             )
             imgButton.send_keys(filename)
-            inp_xpath = "/html/body/div[1]/div/div/div[3]/div[2]/span/div/span/div/div/div[2]/div/div[1]/div[3]/div/div/div[2]/div[1]/div"
-            input_box = self.wait.until(
-                EC.presence_of_element_located((By.XPATH, inp_xpath))
-            )
-            for line in message.split("\n"):
-                input_box.send_keys(line)
-                ActionChains(self.browser).key_down(Keys.SHIFT).key_down(
-                    Keys.ENTER
-                ).key_up(Keys.ENTER).key_up(Keys.SHIFT).perform()
+            if message:
+                self.add_caption(message, media_type="image")
             self.send_attachment()
             LOGGER.info(f"Picture has been successfully sent to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
@@ -576,7 +587,7 @@ class WhatsApp(object):
                     return size
                 size /= 1024.0
 
-    def send_video(self, video):
+    def send_video(self, video: Path, message: Optional[str] = None):
         """send_video ()
         Sends a video to a target user
         CJM - 2022/06/10: Only if file is less than 14MB (WhatsApp limit is 15MB)
@@ -602,7 +613,8 @@ class WhatsApp(object):
                 )
 
                 video_button.send_keys(filename)
-
+                if message:
+                    self.add_caption(message, media_type="video")
                 self.send_attachment()
                 LOGGER.info(f"Video has been successfully sent to {self.mobile}")
             else:
@@ -612,7 +624,7 @@ class WhatsApp(object):
         finally:
             LOGGER.info("send_video() finished running!")
 
-    def send_file(self, filename):
+    def send_file(self, filename: Path, message: Optional[str] = None):
         """send_file()
 
         Sends a file to target user
@@ -632,6 +644,8 @@ class WhatsApp(object):
                 )
             )
             document_button.send_keys(filename)
+            if message:
+                self.add_caption(message, media_type="file")
             self.send_attachment()
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a file to {self.mobile} - {bug}")
@@ -667,6 +681,30 @@ class WhatsApp(object):
             self.browser.close()
             LOGGER.info("Browser closed.")
 
+    def wait_until_message_successfully_sent(self):
+        """wait_until_message_successfully_sent()
+
+        Waits until message is finished sending before continuing to next action.
+
+        Friendly contribution by @jeslynlamxy.
+        """
+
+        LOGGER.info("Waiting for message status update to before continuing...")
+        try:
+            # Waiting for the pending clock icon shows and disappear
+            self.wait.until(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+            self.wait.until_not(
+                EC.presence_of_element_located(
+                    (By.XPATH, '//*[@id="main"]//*[@data-icon="msg-time"]')
+                )
+            )
+        except (NoSuchElementException, Exception) as bug:
+            LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
+
     def get_last_message_received(self, query: str):
         """get_last_message_received() [nCKbr]
 
@@ -681,7 +719,7 @@ class WhatsApp(object):
                     EC.presence_of_element_located(
                         (
                             By.XPATH,
-                            '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in") or contains(@class,"message-out")][last()]',
+                            "/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]/p",
                         )
                     )
                 )
@@ -692,8 +730,10 @@ class WhatsApp(object):
 
                 list_of_messages = self.wait.until(
                     EC.presence_of_all_elements_located(
-                        By.XPATH,
-                        '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]',
+                        (
+                            By.XPATH,
+                            '//div[@id="main"]/div[3]/div[1]/div[2]/div[3]/child::div[contains(@class,"message-in")]',
+                        )
                     )
                 )
 

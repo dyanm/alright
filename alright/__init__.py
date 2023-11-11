@@ -15,6 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -34,13 +35,12 @@ class WhatsApp(object):
 
         self.BASE_URL = "https://web.whatsapp.com/"
         self.suffix_link = "https://web.whatsapp.com/send?phone={mobile}&text&type=phone_number&app_absent=1"
-
+        self.headless= headless
+        
         if not browser:
-            browser = webdriver.Chrome(
-                ChromeDriverManager().install(),
-                options=self.chrome_options,
-            )
-
+            service = Service(ChromeDriverManager().install())
+            browser = webdriver.Chrome(service=service, options=self.chrome_options)
+            
             handles = browser.window_handles
             for _, handle in enumerate(handles):
                 if handle != browser.current_window_handle:

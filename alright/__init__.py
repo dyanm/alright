@@ -53,6 +53,7 @@ class WhatsApp(object):
         self.cli()
         self.login()
         self.mobile = ""
+        self.__version__ = "1.0.0"
 
     @property
     def chrome_options(self):
@@ -166,18 +167,24 @@ class WhatsApp(object):
         search_box.send_keys(Keys.ENTER)
         try:
             opened_chat = self.browser.find_elements(
-                By.XPATH, '//div[@id="main"]/header/div[2]/div[1]/div[1]/span'
+                By.XPATH, '//div[@id="main"]/header/div[2]/div[1]/div[1]/div/span[1]'
             )
+            # LOGGER.info(f"opened_chat = {opened_chat}")
+            # LOGGER.info(f"len(opened_chat) = {len(opened_chat)}")
             if len(opened_chat):
-                title = opened_chat[0].get_attribute("title")
+                title = opened_chat[0].text
+                # LOGGER.info(f"title = {title}, username = {username}")
                 if title.upper() == username.upper():
                     LOGGER.info(f'Successfully fetched chat "{username}"')
-                return True
+                    return True
+                else:
+                    LOGGER.info(f'Incorrect user as chat title does not match username!')
+                    return False
             else:
                 LOGGER.info(f'It was not possible to fetch chat "{username}"')
                 return False
-        except NoSuchElementException:
-            LOGGER.exception(f'It was not possible to fetch chat "{username}"')
+        except NoSuchElementException as e:
+            # LOGGER.exception(f'It was not possible to fetch chat "{username}" because of e : {e}')
             return False
 
     def username_exists(self, username):
@@ -477,7 +484,7 @@ class WhatsApp(object):
             LOGGER.info(f"Message sent successfuly to {self.mobile}")
         except (NoSuchElementException, Exception) as bug:
             LOGGER.exception(f"Failed to send a message to {self.mobile} - {bug}")
-            LOGGER.info("send_message() finished running!")
+        LOGGER.info("send_message() finished running!")
 
     def send_direct_message(self, mobile: str, message: str, saved: bool = True):
         if saved:

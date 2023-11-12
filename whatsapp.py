@@ -123,7 +123,7 @@ def main():
             messenger.wait_until_message_successfully_sent()
 
         logger.debug(f"Task #{count} completed. Moving on to next task.")
-        sleep(args.task_delay)
+        sleep(5)
     logger.info(f"All tasks are completed. Automatically exiting in 3 seconds...")
     sleep(3)
 

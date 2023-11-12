@@ -119,7 +119,7 @@ def main():
             else:
                 logger.debug(f"Sending file to {name}...")
                 messenger.send_file(file_filepath)
-            messenger.wait_until_message_successfully_sent()
+            #messenger.wait_until_message_successfully_sent()
             sleep(args.task_delay)
 
         logger.debug(f"Task #{count} completed. Moving on to next task.")

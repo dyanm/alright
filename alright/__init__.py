@@ -107,6 +107,17 @@ class WhatsApp(object):
         )
         logout_item.click()
 
+    def wait_initial(self):
+        search_box = self.wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "/html/body/div[1]/div/div/div[4]/div/div[1]/div/div/div[2]/div/div[1]",
+                )
+            )
+        )
+        search_box.click()
+    
     def get_phone_link(self, mobile) -> str:
         """get_phone_link (), create a link based on whatsapp (wa.me) api
 

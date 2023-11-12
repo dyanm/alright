@@ -24,7 +24,7 @@ class VideoTooBigError(Exception):
 
 @logger.catch(onerror=lambda _: sys.exit(1))
 def main():
-    logger.debug("Parsing arguments [excel_file, initial_delay(5), task_delay(0)]")
+    logger.debug("Parsing arguments [excel_file, initial_delay(5), task_delay(2)]")
     import argparse
     parser = argparse.ArgumentParser(description='Sends WhatsApp messages in bulk, sending one message per row in the specified excel file')
     parser.add_argument('input_file',type=str, help='The excel file to take the input from.')
@@ -60,7 +60,7 @@ def main():
     logger.info("Opening WhatsApp with Selenium")
     messenger = WhatsApp()
     logger.info(f"Waiting for WhatsApp to load/sync")
-    #sleep(args.initial_delay)
+    sleep(args.initial_delay)
 
     count = 0
     for row in df.itertuples(index=False, name=None):
@@ -81,13 +81,12 @@ def main():
             logger.debug(f"\"{contact_name}\" found.")
             
         if not pd.isnull(message):
-            #sleep(args.task_delay)
             logger.debug(f"Sending message to {name}...")
             messenger.send_message(message)
+            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
 
         if not pd.isnull(img):
-            #sleep(args.task_delay)
             image_filepath = os.path.join(os.getcwd(), "Images", img)
             print(image_filepath)
             if not pd.isnull(img_caption):
@@ -96,10 +95,10 @@ def main():
             else:
                 logger.debug(f"Sending image to {name}...")
                 messenger.send_picture(image_filepath)
+            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
 
         if not pd.isnull(vid):
-            #sleep(args.task_delay)
             video_filepath = os.path.join(os.getcwd(), "Videos", vid)
             print(video_filepath)
             if not pd.isnull(vid_caption):
@@ -108,10 +107,10 @@ def main():
             else:
                 logger.debug(f"Sending video to {name}...")
                 messenger.send_video(video_filepath)
+            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
         
         if not pd.isnull(file):
-            #sleep(args.task_delay)
             file_filepath = os.path.join(os.getcwd(), "Files", file)
             print(file_filepath)
             if not pd.isnull(file_caption):
@@ -120,6 +119,7 @@ def main():
             else:
                 logger.debug(f"Sending file to {name}...")
                 messenger.send_file(file_filepath)
+            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
 
         logger.debug(f"Task #{count} completed. Moving on to next task.")

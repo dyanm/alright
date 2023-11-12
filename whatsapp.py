@@ -33,7 +33,7 @@ def main():
         help='The number of seconds to wait when starting up WhatsApp. Set this longer if your WhatsApp takes very long to load/sync. Note that this is an extra delay on top of the WhatsApp automation library\'s own internal delay.'
         )
     parser.add_argument(
-        '-d', '--task-delay', type=int, default="0", metavar="SECONDS",
+        '-d', '--task-delay', type=int, default="2", metavar="SECONDS",
         help='The number of seconds to wait between each major action (finding contact, sending message, sending image). Note that this is an extra delay on top of the WhatsApp automation library\'s own internal delay.'
         )
     args = parser.parse_args()
@@ -81,13 +81,13 @@ def main():
             logger.debug(f"\"{contact_name}\" found.")
             
         if not pd.isnull(message):
-            #sleep(args.task_delay)
+            sleep(args.task_delay)
             logger.debug(f"Sending message to {name}...")
             messenger.send_message(message)
             messenger.wait_until_message_successfully_sent()
 
         if not pd.isnull(img):
-            #sleep(args.task_delay)
+            sleep(args.task_delay)
             image_filepath = os.path.join(os.getcwd(), "Images", img)
             print(image_filepath)
             if not pd.isnull(img_caption):
@@ -99,7 +99,7 @@ def main():
             messenger.wait_until_message_successfully_sent()
 
         if not pd.isnull(vid):
-            #sleep(args.task_delay)
+            sleep(args.task_delay)
             video_filepath = os.path.join(os.getcwd(), "Videos", vid)
             print(video_filepath)
             if not pd.isnull(vid_caption):
@@ -111,7 +111,7 @@ def main():
             messenger.wait_until_message_successfully_sent()
         
         if not pd.isnull(file):
-            #sleep(args.task_delay)
+            sleep(args.task_delay)
             file_filepath = os.path.join(os.getcwd(), "Files", file)
             print(file_filepath)
             if not pd.isnull(file_caption):
@@ -123,7 +123,7 @@ def main():
             messenger.wait_until_message_successfully_sent()
 
         logger.debug(f"Task #{count} completed. Moving on to next task.")
-        #sleep(args.task_delay)
+        sleep(args.task_delay)
     logger.info(f"All tasks are completed. Automatically exiting in 3 seconds...")
     sleep(3)
 

@@ -83,8 +83,8 @@ def main():
         if not pd.isnull(message):
             logger.debug(f"Sending message to {name}...")
             messenger.send_message(message)
-            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
+            sleep(args.task_delay)
 
         if not pd.isnull(img):
             image_filepath = os.path.join(os.getcwd(), "Images", img)
@@ -95,8 +95,8 @@ def main():
             else:
                 logger.debug(f"Sending image to {name}...")
                 messenger.send_picture(image_filepath)
-            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
+            sleep(args.task_delay)
 
         if not pd.isnull(vid):
             video_filepath = os.path.join(os.getcwd(), "Videos", vid)
@@ -107,8 +107,8 @@ def main():
             else:
                 logger.debug(f"Sending video to {name}...")
                 messenger.send_video(video_filepath)
-            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
+            sleep(args.task_delay)
         
         if not pd.isnull(file):
             file_filepath = os.path.join(os.getcwd(), "Files", file)
@@ -119,11 +119,11 @@ def main():
             else:
                 logger.debug(f"Sending file to {name}...")
                 messenger.send_file(file_filepath)
-            sleep(args.task_delay)
             messenger.wait_until_message_successfully_sent()
+            sleep(args.task_delay)
 
         logger.debug(f"Task #{count} completed. Moving on to next task.")
-        sleep(3)
+        sleep(1)
     logger.info(f"All tasks are completed. Automatically exiting in 3 seconds...")
     sleep(3)
 

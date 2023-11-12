@@ -188,17 +188,6 @@ class WhatsApp(object):
         except NoSuchElementException as e:
             # LOGGER.exception(f'It was not possible to fetch chat "{username}" because of e : {e}')
             return False
-
-    def wait_for_search_box(self):
-        try:
-            search_box = self.wait.until(
-                EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')
-                )
-            )
-            return True
-        except Exception as bug:
-            LOGGER.exception(f"Exception raised while waiting for initialsation\n{bug}")
     
     def username_exists(self, username):
         """username_exists ()

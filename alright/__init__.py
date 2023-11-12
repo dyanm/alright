@@ -196,6 +196,7 @@ class WhatsApp(object):
                     (By.XPATH, '//*[@id="side"]/div[1]/div/label/div/div[2]')
                 )
             )
+            return True
         except Exception as bug:
             LOGGER.exception(f"Exception raised while waiting for initialsation\n{bug}")
     

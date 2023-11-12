@@ -1,6 +1,6 @@
 from shutil import make_archive
 from loguru import logger
-logger.add("Logs\logs.txt", backtrace=True, diagnose=True, level="DEBUG")
+logger.add("Logs/logs.txt", backtrace=True, diagnose=True, level="DEBUG")
 logger.debug("Importing libraries")
 from alright import WhatsApp
 import pandas as pd

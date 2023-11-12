@@ -33,7 +33,7 @@ def main():
         help='The number of seconds to wait when starting up WhatsApp. Set this longer if your WhatsApp takes very long to load/sync. Note that this is an extra delay on top of the WhatsApp automation library\'s own internal delay.'
         )
     parser.add_argument(
-        '-d', '--task-delay', type=int, default="2", metavar="SECONDS",
+        '-d', '--task-delay', type=int, default="1", metavar="SECONDS",
         help='The number of seconds to wait between each major action (finding contact, sending message, sending image). Note that this is an extra delay on top of the WhatsApp automation library\'s own internal delay.'
         )
     args = parser.parse_args()

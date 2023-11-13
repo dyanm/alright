@@ -165,8 +165,11 @@ class WhatsApp(object):
             )
         )
         search_box.clear()
+        sleep(0.5)
         search_box.send_keys(username)
+        sleep(0.5)
         search_box.send_keys(Keys.ENTER)
+        sleep(3)
         try:
             opened_chat = self.browser.find_elements(
                 By.XPATH, '//div[@id="main"]/header/div[2]/div[1]/div[1]/div/span[1]'

@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import logging
+from time import sleep
 from typing import Optional
 from pathlib import Path
 from selenium import webdriver
@@ -165,9 +166,9 @@ class WhatsApp(object):
             )
         )
         search_box.clear()
-        sleep(0.5)
+        sleep(1)
         search_box.send_keys(username)
-        sleep(0.5)
+        sleep(1)
         search_box.send_keys(Keys.ENTER)
         sleep(3)
         try:
